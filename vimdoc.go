@@ -24,12 +24,48 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/russross/blackfriday"
 )
 
+const (
+	LIST_STYLE_ORDERED = iota + 1
+	LIST_STYLE_UNORDERED
+)
+
+func indent(text []byte) []byte {
+	return nil
+}
+
+type listCtx struct {
+	style, index int
+}
+
 type vimDoc struct {
+	lists []*listCtx
+}
+
+func (v *vimDoc) pushList(style int) {
+	v.lists = append(v.lists, &listCtx{style, 1})
+}
+
+func (v *vimDoc) popList() {
+	if len(v.lists) == 0 {
+		log.Fatal("invalid list operation")
+	}
+
+	v.lists = v.lists[:len(v.lists)-1]
+}
+
+func (v *vimDoc) getList() *listCtx {
+	if len(v.lists) == 0 {
+		log.Fatal("invalid list operation")
+	}
+
+	return v.lists[len(v.lists)-1]
 }
 
 func VimDocRenderer() blackfriday.Renderer {
@@ -38,126 +74,147 @@ func VimDocRenderer() blackfriday.Renderer {
 
 // Block-level callbacks
 func (*vimDoc) BlockCode(out *bytes.Buffer, text []byte, lang string) {
-	log.Println("stubbing BlockCode")
+	out.WriteString(">\n")
+	out.Write(text)
+	out.WriteString("<\n")
 }
 
 func (*vimDoc) BlockQuote(out *bytes.Buffer, text []byte) {
-	log.Println("stubbing BlockQuote")
+	out.WriteString(">\n")
+	out.Write(text)
+	out.WriteString("<\n")
 }
 
 func (*vimDoc) BlockHtml(out *bytes.Buffer, text []byte) {
-	log.Println("stubbing BlockHtml")
+	out.WriteString(">\n")
+	out.Write(text)
+	out.WriteString("<\n")
 }
 
 func (*vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id string) {
-	log.Println("stubbing Header")
+	if text() {
+		out.WriteString(" ~\n")
+	}
 }
 
 func (*vimDoc) HRule(out *bytes.Buffer) {
-	log.Println("stubbing HRule")
+	out.WriteString(strings.Repeat("=", 80))
 }
 
-func (*vimDoc) List(out *bytes.Buffer, text func() bool, flags int) {
-	log.Println("stubbing List")
+func (v *vimDoc) List(out *bytes.Buffer, text func() bool, flags int) {
+	style := LIST_STYLE_UNORDERED
+	if flags&blackfriday.LIST_TYPE_ORDERED == blackfriday.LIST_TYPE_ORDERED {
+		style = LIST_STYLE_ORDERED
+	}
+	v.pushList(style)
+
+	text()
+
+	v.popList()
 }
 
-func (*vimDoc) ListItem(out *bytes.Buffer, text []byte, flags int) {
-	log.Println("stubbing ListItem")
+func (v *vimDoc) ListItem(out *bytes.Buffer, text []byte, flags int) {
+	list := v.getList()
+	out.WriteString(fmt.Sprintf("\n%d.", list.index))
+	out.Write(text)
+	list.index++
 }
 
 func (*vimDoc) Paragraph(out *bytes.Buffer, text func() bool) {
-	log.Println("stubbing Paragraph")
+	marker := out.Len()
+	out.WriteString("\n")
+	if !text() {
+		out.Truncate(marker)
+		return
+	}
+	out.WriteString("\n")
 }
 
 func (*vimDoc) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {
-	log.Println("stubbing Table")
 }
 
 func (*vimDoc) TableRow(out *bytes.Buffer, text []byte) {
-	log.Println("stubbing TableRow")
 }
 
 func (*vimDoc) TableHeaderCell(out *bytes.Buffer, text []byte, flags int) {
-	log.Println("stubbing TableHeaderCell")
 }
 
 func (*vimDoc) TableCell(out *bytes.Buffer, text []byte, flags int) {
-	log.Println("stubbing TableCell")
 }
 
 func (*vimDoc) Footnotes(out *bytes.Buffer, text func() bool) {
-	log.Println("stubbing Footnotes")
+	text()
 }
 
 func (*vimDoc) FootnoteItem(out *bytes.Buffer, name, text []byte, flags int) {
-	log.Println("stubbing FootnoteItem")
+	out.Write(text)
 }
 
 func (*vimDoc) TitleBlock(out *bytes.Buffer, text []byte) {
-	log.Println("stubbing TitleBlock")
+	out.Write(text)
 }
 
 // Span-level callbacks
 func (*vimDoc) AutoLink(out *bytes.Buffer, link []byte, kind int) {
-	log.Println("stubbing AutoLink")
+	out.Write(link)
 }
 
 func (*vimDoc) CodeSpan(out *bytes.Buffer, text []byte) {
-	log.Println("stubbing CodeSpan")
+	out.Write(text)
 }
 
 func (*vimDoc) DoubleEmphasis(out *bytes.Buffer, text []byte) {
-	log.Println("stubbing DoubleEmphasis")
+	out.Write(text)
 }
 
 func (*vimDoc) Emphasis(out *bytes.Buffer, text []byte) {
-	log.Println("stubbing Emphasis")
+	out.Write(text)
 }
 
 func (*vimDoc) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
-	log.Println("stubbing Image")
+	// not implemented
 }
 
 func (*vimDoc) LineBreak(out *bytes.Buffer) {
-	log.Println("stubbing LineBreak")
+	out.WriteString("\n")
 }
 
 func (*vimDoc) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
-	log.Println("stubbing Link")
+	out.WriteString(fmt.Sprintf("%s (%s)", content, link))
 }
 
 func (*vimDoc) RawHtmlTag(out *bytes.Buffer, tag []byte) {
-	log.Println("stubbing RawHtmlTag")
+	out.Write(tag)
 }
 
 func (*vimDoc) TripleEmphasis(out *bytes.Buffer, text []byte) {
-	log.Println("stubbing TripleEmphasis")
+	out.Write(text)
 }
 
 func (*vimDoc) StrikeThrough(out *bytes.Buffer, text []byte) {
-	log.Println("stubbing StrikeThrough")
+	out.Write(text)
 }
 
 func (*vimDoc) FootnoteRef(out *bytes.Buffer, ref []byte, id int) {
-	log.Println("stubbing FootnoteRef")
+	// not implemented
 }
 
 // Low-level callbacks
 func (*vimDoc) Entity(out *bytes.Buffer, entity []byte) {
-	log.Println("stubbing Entity")
+	out.Write(entity)
 }
 
 func (*vimDoc) NormalText(out *bytes.Buffer, text []byte) {
-	log.Println("stubbing NormalText")
+	out.Write(text)
 }
 
 // Header and footer
 func (*vimDoc) DocumentHeader(out *bytes.Buffer) {
-	log.Println("stubbing DocumentHeader")
+	// not implemented
 }
 
 func (*vimDoc) DocumentFooter(out *bytes.Buffer) {
-	log.Println("stubbing DocumentFooter")
+	// not implemented
 }
 
 func (*vimDoc) GetFlags() int {
