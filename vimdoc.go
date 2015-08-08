@@ -25,7 +25,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"go/doc"
 	"log"
 	"strings"
 
@@ -37,23 +36,20 @@ const (
 	LIST_STYLE_UNORDERED
 )
 
-func indent(text []byte) []byte {
-	return nil
-}
-
 type listItem struct {
 	style, index int
 }
 
 type vimDoc struct {
-	lists []*listItem
+	lists         []*listItem
+	cols, tabsize int
 }
 
-func (v *vimDoc) pushList(style int) {
+func (v *vimDoc) pushl(style int) {
 	v.lists = append(v.lists, &listItem{style, 1})
 }
 
-func (v *vimDoc) popList() {
+func (v *vimDoc) popl() {
 	if len(v.lists) == 0 {
 		log.Fatal("invalid list operation")
 	}
@@ -61,7 +57,7 @@ func (v *vimDoc) popList() {
 	v.lists = v.lists[:len(v.lists)-1]
 }
 
-func (v *vimDoc) getList() *listItem {
+func (v *vimDoc) getl() *listItem {
 	if len(v.lists) == 0 {
 		log.Fatal("invalid list operation")
 	}
@@ -70,7 +66,10 @@ func (v *vimDoc) getList() *listItem {
 }
 
 func VimDocRenderer() blackfriday.Renderer {
-	return &vimDoc{}
+	return &vimDoc{
+		cols:    80,
+		tabsize: 4,
+	}
 }
 
 func (*vimDoc) hrule(out *bytes.Buffer, repeat string) {
@@ -78,26 +77,41 @@ func (*vimDoc) hrule(out *bytes.Buffer, repeat string) {
 	out.WriteString("\n")
 }
 
-func (*vimDoc) formatText(out *bytes.Buffer, text string, level int) {
-	doc.ToText(out, string(text), strings.Repeat(" ", 4*level), "", 80)
+func (v *vimDoc) format(out *bytes.Buffer, text string, trim int) {
+	lines := strings.Split(text, "\n")
+
+	for index, line := range lines {
+		width := v.tabsize
+		if index == 0 {
+			width -= trim
+		}
+
+		if len(line) == 0 {
+			continue
+		}
+
+		out.WriteString(strings.Repeat(" ", width))
+		out.WriteString(line)
+		out.WriteString("\n")
+	}
 }
 
 // Block-level callbacks
 func (v *vimDoc) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	out.WriteString(">\n")
-	v.formatText(out, string(text), 1)
+	v.format(out, string(text), 0)
 	out.WriteString("<\n\n")
 }
 
 func (v *vimDoc) BlockQuote(out *bytes.Buffer, text []byte) {
 	out.WriteString(">\n")
-	v.formatText(out, string(text), 1)
+	v.format(out, string(text), 0)
 	out.WriteString("<\n\n")
 }
 
 func (v *vimDoc) BlockHtml(out *bytes.Buffer, text []byte) {
 	out.WriteString(">\n")
-	v.formatText(out, string(text), 1)
+	v.format(out, string(text), 0)
 	out.WriteString("<\n\n")
 }
 
@@ -129,14 +143,15 @@ func (v *vimDoc) List(out *bytes.Buffer, text func() bool, flags int) {
 		style = LIST_STYLE_ORDERED
 	}
 
-	v.pushList(style)
+	v.pushl(style)
 	text()
-	v.popList()
+	v.popl()
 }
 
 func (v *vimDoc) ListItem(out *bytes.Buffer, text []byte, flags int) {
-	list := v.getList()
+	marker := out.Len()
 
+	list := v.getl()
 	if list.style == LIST_STYLE_ORDERED {
 		out.WriteString(fmt.Sprintf("%d. ", list.index))
 		list.index++
@@ -144,9 +159,8 @@ func (v *vimDoc) ListItem(out *bytes.Buffer, text []byte, flags int) {
 		out.WriteString("* ")
 	}
 
-	out.Write(text)
+	v.format(out, string(text), out.Len()-marker)
 
-	out.WriteString("\n")
 	if flags&blackfriday.LIST_ITEM_END_OF_LIST == blackfriday.LIST_ITEM_END_OF_LIST {
 		out.WriteString("\n")
 	}
@@ -202,7 +216,9 @@ func (*vimDoc) AutoLink(out *bytes.Buffer, link []byte, kind int) {
 }
 
 func (*vimDoc) CodeSpan(out *bytes.Buffer, text []byte) {
+	out.WriteString("`")
 	out.Write(text)
+	out.WriteString("`")
 }
 
 func (*vimDoc) DoubleEmphasis(out *bytes.Buffer, text []byte) {
@@ -247,12 +263,10 @@ func (*vimDoc) FootnoteRef(out *bytes.Buffer, ref []byte, id int) {
 // Low-level callbacks
 func (v *vimDoc) Entity(out *bytes.Buffer, entity []byte) {
 	out.Write(entity)
-	// v.formatText(out, string(entity), 0)
 }
 
 func (v *vimDoc) NormalText(out *bytes.Buffer, text []byte) {
 	out.Write(text)
-	// v.formatText(out, string(text), 0)
 }
 
 // Header and footer
