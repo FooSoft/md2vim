@@ -33,7 +33,7 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] [input] [output]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] input output\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "http://foosoft.net/projects/vimdown/\n\n")
 	fmt.Fprintf(os.Stderr, "Parameters:\n")
 	flag.PrintDefaults()
@@ -42,44 +42,32 @@ func usage() {
 func main() {
 	cols := flag.Int("cols", 80, "number of columns to use for alignment and rules")
 	tabs := flag.Int("tabs", 4, "size of the tab to use specified as number of spaces")
+	desc := flag.String("desc", "", "short description of extension")
 	flag.Usage = usage
 	flag.Parse()
 
 	args := flag.Args()
-
-	var input []byte
-	var err error
-	switch len(args) {
-	case 0:
-		if input, err = ioutil.ReadAll(os.Stdin); err != nil {
-			log.Fatal("error reading from stdin")
-		}
-	case 1, 2:
-		if input, err = ioutil.ReadFile(args[0]); err != nil {
-			log.Fatalf("error reading from %s", args[0])
-		}
-	default:
+	if len(args) < 2 {
 		flag.Usage()
 		os.Exit(-1)
 	}
 
-	renderer := VimDocRenderer(*cols, *tabs)
+	input, err := ioutil.ReadFile(args[0])
+	if err != nil {
+		log.Fatalf("error: unable to read from file %s", args[0])
+	}
+
+	renderer := VimDocRenderer(args[1], *desc, *cols, *tabs)
 	extensions := blackfriday.EXTENSION_FENCED_CODE | blackfriday.EXTENSION_NO_INTRA_EMPHASIS | blackfriday.EXTENSION_SPACE_HEADERS
 	output := blackfriday.Markdown(input, renderer, extensions)
 
-	var file *os.File
-	switch len(args) {
-	case 2:
-		if file, err = os.Create(args[1]); err != nil {
-			fmt.Fprintf(os.Stderr, "Error creating %s: %v", args[1], err)
-			os.Exit(-1)
-		}
-		defer file.Close()
-	default:
-		file = os.Stdout
+	file, err := os.Create(args[1])
+	if err != nil {
+		log.Fatalf("error: unable to write to file %s", args[1])
 	}
+	defer file.Close()
 
-	if _, err = file.Write(output); err != nil {
-		log.Fatal("error writing output")
+	if _, err := file.Write(output); err != nil {
+		log.Fatal("error: unable to write output")
 	}
 }

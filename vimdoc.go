@@ -26,6 +26,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"path"
 	"regexp"
 	"strings"
 
@@ -48,17 +49,32 @@ type header struct {
 }
 
 type vimDoc struct {
-	rootHead *header
-	lastHead *header
+	filename string
 	title    string
+	desc     string
 	cols     int
 	tabs     int
 	tocPos   int
 	lists    []*list
+	rootHead *header
+	lastHead *header
 }
 
-func VimDocRenderer(cols, tabs int) blackfriday.Renderer {
-	return &vimDoc{title: "test", cols: cols, tabs: tabs, tocPos: -1}
+func VimDocRenderer(filename, desc string, cols, tabs int) blackfriday.Renderer {
+	filename = path.Base(filename)
+	title := filename
+
+	if index := strings.LastIndex(filename, "."); index > -1 {
+		title = strings.ToLower(filename[:index])
+	}
+
+	return &vimDoc{
+		filename: filename,
+		title:    title,
+		desc:     desc,
+		cols:     cols,
+		tabs:     tabs,
+		tocPos:   -1}
 }
 
 func (v *vimDoc) pushl() {
@@ -98,11 +114,12 @@ func (v *vimDoc) buildTag(header []byte) []byte {
 
 func (v *vimDoc) writeStraddle(out *bytes.Buffer, left, right []byte, trim int) {
 	padding := v.cols - (len(left) + len(right)) + trim
+	if padding <= 0 {
+		padding = 1
+	}
 
 	out.Write(left)
-	if padding > 0 {
-		out.WriteString(strings.Repeat(" ", padding))
-	}
+	out.WriteString(strings.Repeat(" ", padding))
 	out.Write(right)
 	out.WriteString("\n")
 }
@@ -347,9 +364,13 @@ func (v *vimDoc) NormalText(out *bytes.Buffer, text []byte) {
 }
 
 // Header and footer
-func (*vimDoc) DocumentHeader(out *bytes.Buffer) {
-	// unimplemented
-	log.Println("DocumentHeader is a stub")
+func (v *vimDoc) DocumentHeader(out *bytes.Buffer) {
+	if len(v.desc) > 0 {
+		v.writeStraddle(out, []byte(v.filename), []byte(v.desc), 0)
+	} else {
+		out.WriteString(v.filename)
+		out.WriteString("\n")
+	}
 }
 
 func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
