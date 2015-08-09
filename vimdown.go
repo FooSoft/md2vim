@@ -40,12 +40,12 @@ func usage() {
 }
 
 func main() {
-	cols := flag.Int("cols", DEFAULT_NUM_COLUMNS, "number of columns to use for alignment and rules")
-	tabs := flag.Int("tabs", DEFAULT_TAB_SIZE, "size of the tab to use specified as number of spaces")
+	cols := flag.Int("cols", DEFAULT_NUM_COLUMNS, "number of columns to use for layout")
+	tabs := flag.Int("tabs", DEFAULT_TAB_SIZE, "tab width specified in number of spaces")
 	notoc := flag.Bool("notoc", false, "do not generate table of contents for headings")
 	norules := flag.Bool("norules", false, "do not generate horizontal rules above headings")
 	pascal := flag.Bool("pascal", false, "use PascalCase for abbreviating tags")
-	desc := flag.String("desc", "", "short description of extension")
+	desc := flag.String("desc", "", "short description of the help file")
 	flag.Usage = usage
 	flag.Parse()
 

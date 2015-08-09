@@ -48,10 +48,10 @@ type list struct {
 	index int
 }
 
-type header struct {
+type heading struct {
 	text     []byte
 	level    int
-	children []*header
+	children []*heading
 }
 
 type vimDoc struct {
@@ -63,8 +63,8 @@ type vimDoc struct {
 	flags    int
 	tocPos   int
 	lists    []*list
-	rootHead *header
-	lastHead *header
+	rootHead *heading
+	lastHead *heading
 }
 
 func VimDocRenderer(filename, desc string, cols, tabs, flags int) blackfriday.Renderer {
@@ -113,20 +113,20 @@ func (v *vimDoc) fixupCode(input []byte) []byte {
 	return r.ReplaceAll(input, []byte("$1"))
 }
 
-func (v *vimDoc) fixupHeader(header []byte) []byte {
-	return bytes.ToUpper(header)
+func (v *vimDoc) fixupHeader(text []byte) []byte {
+	return bytes.ToUpper(text)
 }
 
-func (v *vimDoc) buildTag(header []byte) []byte {
+func (v *vimDoc) buildTag(text []byte) []byte {
 	if v.flags&FLAG_PASCAL == 0 {
-		header = bytes.ToLower(header)
-		header = bytes.Replace(header, []byte{' '}, []byte{'_'}, -1)
+		text = bytes.ToLower(text)
+		text = bytes.Replace(text, []byte{' '}, []byte{'_'}, -1)
 	} else {
-		header = bytes.Title(header)
-		header = bytes.Replace(header, []byte{' '}, []byte{}, -1)
+		text = bytes.Title(text)
+		text = bytes.Replace(text, []byte{' '}, []byte{}, -1)
 	}
 
-	return []byte(fmt.Sprintf("%s-%s", v.title, header))
+	return []byte(fmt.Sprintf("%s-%s", v.title, text))
 }
 
 func (v *vimDoc) writeStraddle(out *bytes.Buffer, left, right []byte, trim int) {
@@ -146,13 +146,13 @@ func (v *vimDoc) writeRule(out *bytes.Buffer, repeat string) {
 	out.WriteString("\n")
 }
 
-func (v *vimDoc) writeToc(out *bytes.Buffer, h *header, depth int) {
-	title := fmt.Sprintf("%s%s", strings.Repeat(" ", depth*v.tabs), h.text)
-	link := fmt.Sprintf("|%s|", v.buildTag(h.text))
+func (v *vimDoc) writeToc(out *bytes.Buffer, head *heading, depth int) {
+	title := fmt.Sprintf("%s%s", strings.Repeat(" ", depth*v.tabs), head.text)
+	link := fmt.Sprintf("|%s|", v.buildTag(head.text))
 	v.writeStraddle(out, []byte(title), []byte(link), 2)
 
-	for _, c := range h.children {
-		v.writeToc(out, c, depth+1)
+	for _, child := range head.children {
+		v.writeToc(out, child, depth+1)
 	}
 }
 
@@ -204,7 +204,7 @@ func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id strin
 		}
 	}
 
-	headerPos := out.Len()
+	headingPos := out.Len()
 
 	if !text() {
 		out.Truncate(initPos)
@@ -216,31 +216,31 @@ func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id strin
 	}
 
 	var value []byte
-	value = append(value, out.Bytes()[headerPos:]...)
-	header := &header{value, level, nil}
+	value = append(value, out.Bytes()[headingPos:]...)
+	heading := &heading{value, level, nil}
 
 	if v.lastHead == nil {
-		if header.level != 1 {
-			log.Println("warning: top-level header in document is not a level 1 header")
+		if heading.level != 1 {
+			log.Println("warning: top-level heading in document is not a level 1 heading")
 		}
 
-		v.rootHead = header
-		v.lastHead = header
+		v.rootHead = heading
+		v.lastHead = heading
 	} else {
-		if v.rootHead.level >= header.level {
-			log.Println("warning: found header of higher or equal level to the root header")
+		if v.rootHead.level >= heading.level {
+			log.Println("warning: found heading of higher or equal level to the root heading")
 		}
 
-		if header.level <= v.lastHead.level {
-			v.lastHead = header
+		if heading.level <= v.lastHead.level {
+			v.lastHead = heading
 		} else {
-			v.lastHead.children = append(v.lastHead.children, header)
+			v.lastHead.children = append(v.lastHead.children, heading)
 		}
 	}
 
-	out.Truncate(headerPos)
-	tag := fmt.Sprintf("*%s*", v.buildTag(header.text))
-	v.writeStraddle(out, v.fixupHeader(header.text), []byte(tag), 2)
+	out.Truncate(headingPos)
+	tag := fmt.Sprintf("*%s*", v.buildTag(heading.text))
+	v.writeStraddle(out, v.fixupHeader(heading.text), []byte(tag), 2)
 	out.WriteString("\n")
 }
 
@@ -283,7 +283,7 @@ func (*vimDoc) Paragraph(out *bytes.Buffer, text func() bool) {
 	out.WriteString("\n\n")
 }
 
-func (*vimDoc) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {
+func (*vimDoc) Table(out *bytes.Buffer, heading []byte, body []byte, columnData []int) {
 	// unimplemented
 	log.Println("warning: Table is a stub")
 }
