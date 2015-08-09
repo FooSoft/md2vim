@@ -91,7 +91,9 @@ func (v *vimDoc) fixupHeader(header []byte) []byte {
 }
 
 func (v *vimDoc) buildTag(header []byte) []byte {
-	return []byte(fmt.Sprintf("%s-%s", v.title, bytes.ToLower(header)))
+	header = bytes.ToLower(header)
+	header = bytes.Replace(header, []byte{' '}, []byte{'_'}, -1)
+	return []byte(fmt.Sprintf("%s-%s", v.title, header))
 }
 
 func (v *vimDoc) writeStraddle(out *bytes.Buffer, left, right []byte, trim int) {
@@ -111,7 +113,7 @@ func (v *vimDoc) writeRule(out *bytes.Buffer, repeat string) {
 }
 
 func (v *vimDoc) writeToc(out *bytes.Buffer, h *header, depth int) {
-	title := fmt.Sprintf("%s%s:", strings.Repeat(" ", depth*v.tabs), h.text)
+	title := fmt.Sprintf("%s%s", strings.Repeat(" ", depth*v.tabs), h.text)
 	link := fmt.Sprintf("|%s|", v.buildTag(h.text))
 	v.writeStraddle(out, []byte(title), []byte(link), 2)
 
@@ -353,10 +355,14 @@ func (*vimDoc) DocumentHeader(out *bytes.Buffer) {
 func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
 	var temp bytes.Buffer
 
-	temp.Write(out.Bytes()[:v.tocPos])
-	v.writeToc(&temp, v.rootHead, 0)
-	temp.WriteString("\n")
-	temp.Write(out.Bytes()[v.tocPos:])
+	if v.tocPos > 0 {
+		temp.Write(out.Bytes()[:v.tocPos])
+		v.writeToc(&temp, v.rootHead, 0)
+		temp.WriteString("\n")
+		temp.Write(out.Bytes()[v.tocPos:])
+	} else {
+		temp.ReadFrom(out)
+	}
 
 	out.Reset()
 	out.Write(v.fixupCode(temp.Bytes()))
