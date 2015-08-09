@@ -40,12 +40,22 @@ type list struct {
 	index int
 }
 
-type vimDoc struct {
-	lists []*list
+type header struct {
+	text     []byte
+	level    int
+	children []*header
 }
 
-func VimDocRenderer() *vimDoc {
-	return &vimDoc{}
+type vimDoc struct {
+	rootHead *header
+	lastHead *header
+	title    string
+	tocPos   int
+	lists    []*list
+}
+
+func VimDocRenderer() blackfriday.Renderer {
+	return &vimDoc{title: "test", tocPos: -1}
 }
 
 func (v *vimDoc) pushl() {
@@ -68,14 +78,33 @@ func (v *vimDoc) getl() *list {
 	return v.lists[len(v.lists)-1]
 }
 
-func (v *vimDoc) fixup(input []byte) []byte {
+func (v *vimDoc) fixupCode(input []byte) []byte {
 	r := regexp.MustCompile(`(?m)^\s*([<>])$`)
 	return r.ReplaceAll(input, []byte("$1"))
 }
 
-func (*vimDoc) hrule(out *bytes.Buffer, repeat string) {
+func (v *vimDoc) fixupHeader(header []byte) []byte {
+	return bytes.ToUpper(header)
+}
+
+func (v *vimDoc) buildTag(header []byte) []byte {
+	return []byte(fmt.Sprintf("%s-%s", v.title, string(bytes.ToLower(header))))
+}
+
+func (*vimDoc) writeRule(out *bytes.Buffer, repeat string) {
 	out.WriteString(strings.Repeat(repeat, DEFAULT_NUM_COLUMNS))
 	out.WriteString("\n")
+}
+
+func (v *vimDoc) writeToc(out *bytes.Buffer, h *header, depth int) {
+	out.WriteString(fmt.Sprintf(
+		"%s%s: |%s|\n",
+		strings.Repeat(" ", depth*blackfriday.TAB_SIZE_DEFAULT),
+		string(h.text),
+		v.buildTag(h.text)))
+	for _, c := range h.children {
+		v.writeToc(out, c, depth+1)
+	}
 }
 
 func (v *vimDoc) format(out *bytes.Buffer, text string, trim int) {
@@ -83,7 +112,7 @@ func (v *vimDoc) format(out *bytes.Buffer, text string, trim int) {
 
 	for index, line := range lines {
 		width := blackfriday.TAB_SIZE_DEFAULT
-		if index == 0 {
+		if width >= trim && index == 0 {
 			width -= trim
 		}
 
@@ -117,25 +146,55 @@ func (v *vimDoc) BlockHtml(out *bytes.Buffer, text []byte) {
 }
 
 func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id string) {
-	marker := out.Len()
+	initPos := out.Len()
 
 	switch level {
 	case 1:
-		v.hrule(out, "=")
+		v.writeRule(out, "=")
 	case 2:
-		v.hrule(out, "-")
+		v.writeRule(out, "-")
 	}
 
+	headerPos := out.Len()
+
 	if !text() {
-		out.Truncate(marker)
+		out.Truncate(initPos)
 		return
 	}
 
-	out.WriteString(" ~\n\n")
+	if v.tocPos == -1 && v.rootHead != nil {
+		v.tocPos = initPos
+	}
+
+	var value []byte
+	value = append(value, out.Bytes()[headerPos:]...)
+	header := &header{value, level, nil}
+
+	if v.lastHead == nil {
+		if header.level != 1 {
+			log.Println("warning: top-level header in document is not a level 1 header")
+		}
+
+		v.rootHead = header
+		v.lastHead = header
+	} else {
+		if v.rootHead.level >= header.level {
+			log.Println("warning: found header of higher or equal level to the root header")
+		}
+
+		if header.level <= v.lastHead.level {
+			v.lastHead = header
+		} else {
+			v.lastHead.children = append(v.lastHead.children, header)
+		}
+	}
+
+	out.Truncate(headerPos)
+	out.WriteString(fmt.Sprintf("%s\t\t*%s*\n\n", v.fixupHeader(header.text), v.buildTag(header.text)))
 }
 
 func (v *vimDoc) HRule(out *bytes.Buffer) {
-	v.hrule(out, "-")
+	v.writeRule(out, "-")
 }
 
 func (v *vimDoc) List(out *bytes.Buffer, text func() bool, flags int) {
@@ -214,6 +273,7 @@ func (*vimDoc) AutoLink(out *bytes.Buffer, link []byte, kind int) {
 func (*vimDoc) CodeSpan(out *bytes.Buffer, text []byte) {
 	r := regexp.MustCompile(`\s`)
 
+	// vim does not properly highlight spaces in code spans
 	if !r.Match(text) {
 		out.WriteString("`")
 		out.Write(text)
@@ -230,8 +290,7 @@ func (*vimDoc) Emphasis(out *bytes.Buffer, text []byte) {
 }
 
 func (*vimDoc) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
-	// unimplemented
-	log.Println("Image is a stub")
+	// cannot view images in vim
 }
 
 func (*vimDoc) LineBreak(out *bytes.Buffer) {
@@ -276,9 +335,16 @@ func (*vimDoc) DocumentHeader(out *bytes.Buffer) {
 	log.Println("DocumentHeader is a stub")
 }
 
-func (*vimDoc) DocumentFooter(out *bytes.Buffer) {
-	// unimplemented
-	log.Println("DocumentFooter is a stub")
+func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
+	var temp bytes.Buffer
+
+	temp.Write(out.Bytes()[:v.tocPos])
+	v.writeToc(&temp, v.rootHead, 0)
+	temp.WriteString("\n")
+	temp.Write(out.Bytes()[v.tocPos:])
+
+	out.Reset()
+	out.Write(v.fixupCode(temp.Bytes()))
 }
 
 func (*vimDoc) GetFlags() int {
