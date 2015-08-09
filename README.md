@@ -21,7 +21,8 @@ $ go get github.com/FooSoft/md2vim
 Otherwise, you can use the pre-built binaries for the platforms below:
 
 *   [Linux](http://foosoft.net/projects/md2vim/dl/md2vim-linux64.tar.gz)
-*   [Windows](http://foosoft.net/projects/md2vim/dl/md2vim-win32.tar.gz)
+*   [OSX](http://foosoft.net/projects/md2vim/dl/md2vim-darwin64.tar.gz)
+*   [Windows](http://foosoft.net/projects/md2vim/dl/md2vim-win32.zip)
 
 
 ## Example ##
