@@ -38,6 +38,12 @@ const (
 	DEFAULT_TAB_SIZE    = 4
 )
 
+const (
+	FLAG_NO_TOC = 1 << iota
+	FLAG_NO_RULES
+	FLAG_PASCAL
+)
+
 type list struct {
 	index int
 }
@@ -54,18 +60,22 @@ type vimDoc struct {
 	desc     string
 	cols     int
 	tabs     int
+	flags    int
 	tocPos   int
 	lists    []*list
 	rootHead *header
 	lastHead *header
 }
 
-func VimDocRenderer(filename, desc string, cols, tabs int) blackfriday.Renderer {
+func VimDocRenderer(filename, desc string, cols, tabs, flags int) blackfriday.Renderer {
 	filename = path.Base(filename)
 	title := filename
 
 	if index := strings.LastIndex(filename, "."); index > -1 {
-		title = strings.ToLower(filename[:index])
+		title = filename[:index]
+		if flags&FLAG_PASCAL == 0 {
+			title = strings.ToLower(title)
+		}
 	}
 
 	return &vimDoc{
@@ -74,6 +84,7 @@ func VimDocRenderer(filename, desc string, cols, tabs int) blackfriday.Renderer 
 		desc:     desc,
 		cols:     cols,
 		tabs:     tabs,
+		flags:    flags,
 		tocPos:   -1}
 }
 
@@ -107,8 +118,14 @@ func (v *vimDoc) fixupHeader(header []byte) []byte {
 }
 
 func (v *vimDoc) buildTag(header []byte) []byte {
-	header = bytes.ToLower(header)
-	header = bytes.Replace(header, []byte{' '}, []byte{'_'}, -1)
+	if v.flags&FLAG_PASCAL == 0 {
+		header = bytes.ToLower(header)
+		header = bytes.Replace(header, []byte{' '}, []byte{'_'}, -1)
+	} else {
+		header = bytes.ToTitle(header)
+		header = bytes.Replace(header, []byte{' '}, []byte{}, -1)
+	}
+
 	return []byte(fmt.Sprintf("%s-%s", v.title, header))
 }
 
@@ -178,11 +195,13 @@ func (v *vimDoc) BlockHtml(out *bytes.Buffer, text []byte) {
 func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id string) {
 	initPos := out.Len()
 
-	switch level {
-	case 1:
-		v.writeRule(out, "=")
-	case 2:
-		v.writeRule(out, "-")
+	if v.flags&FLAG_NO_RULES == 0 {
+		switch level {
+		case 1:
+			v.writeRule(out, "=")
+		case 2:
+			v.writeRule(out, "-")
+		}
 	}
 
 	headerPos := out.Len()
@@ -376,7 +395,7 @@ func (v *vimDoc) DocumentHeader(out *bytes.Buffer) {
 func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
 	var temp bytes.Buffer
 
-	if v.tocPos > 0 {
+	if v.tocPos > 0 && v.flags&FLAG_NO_TOC == 0 {
 		temp.Write(out.Bytes()[:v.tocPos])
 		v.writeToc(&temp, v.rootHead, 0)
 		temp.WriteString("\n")
@@ -389,6 +408,6 @@ func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
 	out.Write(v.fixupCode(temp.Bytes()))
 }
 
-func (*vimDoc) GetFlags() int {
-	return 0
+func (v *vimDoc) GetFlags() int {
+	return v.flags
 }
