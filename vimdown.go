@@ -40,6 +40,8 @@ func usage() {
 }
 
 func main() {
+	cols := flag.Int("cols", 80, "number of columns to use for alignment and rules")
+	tabs := flag.Int("tabs", 4, "size of the tab to use specified as number of spaces")
 	flag.Usage = usage
 	flag.Parse()
 
@@ -61,7 +63,7 @@ func main() {
 		os.Exit(-1)
 	}
 
-	renderer := VimDocRenderer()
+	renderer := VimDocRenderer(*cols, *tabs)
 	extensions := blackfriday.EXTENSION_FENCED_CODE | blackfriday.EXTENSION_NO_INTRA_EMPHASIS | blackfriday.EXTENSION_SPACE_HEADERS
 	output := blackfriday.Markdown(input, renderer, extensions)
 

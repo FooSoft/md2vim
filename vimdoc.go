@@ -34,6 +34,7 @@ import (
 
 const (
 	DEFAULT_NUM_COLUMNS = 80
+	DEFAULT_TAB_SIZE    = 4
 )
 
 type list struct {
@@ -50,12 +51,14 @@ type vimDoc struct {
 	rootHead *header
 	lastHead *header
 	title    string
+	cols     int
+	tabs     int
 	tocPos   int
 	lists    []*list
 }
 
-func VimDocRenderer() blackfriday.Renderer {
-	return &vimDoc{title: "test", tocPos: -1}
+func VimDocRenderer(cols, tabs int) blackfriday.Renderer {
+	return &vimDoc{title: "test", cols: cols, tabs: tabs, tocPos: -1}
 }
 
 func (v *vimDoc) pushl() {
@@ -64,7 +67,7 @@ func (v *vimDoc) pushl() {
 
 func (v *vimDoc) popl() {
 	if len(v.lists) == 0 {
-		log.Fatal("invalid list operation")
+		log.Fatal("error: invalid list operation")
 	}
 
 	v.lists = v.lists[:len(v.lists)-1]
@@ -72,7 +75,7 @@ func (v *vimDoc) popl() {
 
 func (v *vimDoc) getl() *list {
 	if len(v.lists) == 0 {
-		log.Fatal("invalid list operation")
+		log.Fatal("error: invalid list operation")
 	}
 
 	return v.lists[len(v.lists)-1]
@@ -88,20 +91,30 @@ func (v *vimDoc) fixupHeader(header []byte) []byte {
 }
 
 func (v *vimDoc) buildTag(header []byte) []byte {
-	return []byte(fmt.Sprintf("%s-%s", v.title, string(bytes.ToLower(header))))
+	return []byte(fmt.Sprintf("%s-%s", v.title, bytes.ToLower(header)))
 }
 
-func (*vimDoc) writeRule(out *bytes.Buffer, repeat string) {
-	out.WriteString(strings.Repeat(repeat, DEFAULT_NUM_COLUMNS))
+func (v *vimDoc) writeStraddle(out *bytes.Buffer, left, right []byte, trim int) {
+	padding := v.cols - (len(left) + len(right)) + trim
+
+	out.Write(left)
+	if padding > 0 {
+		out.WriteString(strings.Repeat(" ", padding))
+	}
+	out.Write(right)
+	out.WriteString("\n")
+}
+
+func (v *vimDoc) writeRule(out *bytes.Buffer, repeat string) {
+	out.WriteString(strings.Repeat(repeat, v.cols))
 	out.WriteString("\n")
 }
 
 func (v *vimDoc) writeToc(out *bytes.Buffer, h *header, depth int) {
-	out.WriteString(fmt.Sprintf(
-		"%s%s: |%s|\n",
-		strings.Repeat(" ", depth*blackfriday.TAB_SIZE_DEFAULT),
-		string(h.text),
-		v.buildTag(h.text)))
+	title := fmt.Sprintf("%s%s:", strings.Repeat(" ", depth*v.tabs), h.text)
+	link := fmt.Sprintf("|%s|", v.buildTag(h.text))
+	v.writeStraddle(out, []byte(title), []byte(link), 2)
+
 	for _, c := range h.children {
 		v.writeToc(out, c, depth+1)
 	}
@@ -111,18 +124,16 @@ func (v *vimDoc) format(out *bytes.Buffer, text string, trim int) {
 	lines := strings.Split(text, "\n")
 
 	for index, line := range lines {
-		width := blackfriday.TAB_SIZE_DEFAULT
+		width := v.tabs
 		if width >= trim && index == 0 {
 			width -= trim
 		}
 
-		if len(line) == 0 {
-			continue
+		if len(line) > 0 {
+			out.WriteString(strings.Repeat(" ", width))
+			out.WriteString(line)
+			out.WriteString("\n")
 		}
-
-		out.WriteString(strings.Repeat(" ", width))
-		out.WriteString(line)
-		out.WriteString("\n")
 	}
 }
 
@@ -190,7 +201,9 @@ func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id strin
 	}
 
 	out.Truncate(headerPos)
-	out.WriteString(fmt.Sprintf("%s\t\t*%s*\n\n", v.fixupHeader(header.text), v.buildTag(header.text)))
+	tag := fmt.Sprintf("*%s*", v.buildTag(header.text))
+	v.writeStraddle(out, v.fixupHeader(header.text), []byte(tag), 2)
+	out.WriteString("\n")
 }
 
 func (v *vimDoc) HRule(out *bytes.Buffer) {
@@ -216,53 +229,55 @@ func (v *vimDoc) ListItem(out *bytes.Buffer, text []byte, flags int) {
 
 	v.format(out, string(text), out.Len()-marker)
 
-	if flags&blackfriday.LIST_ITEM_END_OF_LIST == blackfriday.LIST_ITEM_END_OF_LIST {
+	if flags&blackfriday.LIST_ITEM_END_OF_LIST != 0 {
 		out.WriteString("\n")
 	}
 }
 
 func (*vimDoc) Paragraph(out *bytes.Buffer, text func() bool) {
 	marker := out.Len()
+
 	if !text() {
 		out.Truncate(marker)
 		return
 	}
+
 	out.WriteString("\n\n")
 }
 
 func (*vimDoc) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {
 	// unimplemented
-	log.Println("Table is a stub")
+	log.Println("warning: Table is a stub")
 }
 
 func (*vimDoc) TableRow(out *bytes.Buffer, text []byte) {
 	// unimplemented
-	log.Println("TableRow is a stub")
+	log.Println("warning: TableRow is a stub")
 }
 
 func (*vimDoc) TableHeaderCell(out *bytes.Buffer, text []byte, flags int) {
 	// unimplemented
-	log.Println("TableHeaderCell is a stub")
+	log.Println("warning: TableHeaderCell is a stub")
 }
 
 func (*vimDoc) TableCell(out *bytes.Buffer, text []byte, flags int) {
 	// unimplemented
-	log.Println("TableCell is a stub")
+	log.Println("warning: TableCell is a stub")
 }
 
 func (*vimDoc) Footnotes(out *bytes.Buffer, text func() bool) {
 	// unimplemented
-	log.Println("Footnotes is a stub")
+	log.Println("warning: Footnotes is a stub")
 }
 
 func (*vimDoc) FootnoteItem(out *bytes.Buffer, name, text []byte, flags int) {
 	// unimplemented
-	log.Println("FootnoteItem is a stub")
+	log.Println("warning: FootnoteItem is a stub")
 }
 
 func (*vimDoc) TitleBlock(out *bytes.Buffer, text []byte) {
 	// unimplemented
-	log.Println("TitleBlock is a stub")
+	log.Println("warning: TitleBlock is a stub")
 }
 
 // Span-level callbacks
@@ -273,7 +288,7 @@ func (*vimDoc) AutoLink(out *bytes.Buffer, link []byte, kind int) {
 func (*vimDoc) CodeSpan(out *bytes.Buffer, text []byte) {
 	r := regexp.MustCompile(`\s`)
 
-	// vim does not properly highlight spaces in code spans
+	// vim does not correctly highlight space-delimited words in code spans
 	if !r.Match(text) {
 		out.WriteString("`")
 		out.Write(text)
@@ -303,7 +318,7 @@ func (*vimDoc) Link(out *bytes.Buffer, link []byte, title []byte, content []byte
 
 func (*vimDoc) RawHtmlTag(out *bytes.Buffer, tag []byte) {
 	// unimplemented
-	log.Println("StrikeThrough is a stub")
+	log.Println("warning: StrikeThrough is a stub")
 }
 
 func (*vimDoc) TripleEmphasis(out *bytes.Buffer, text []byte) {
@@ -312,12 +327,12 @@ func (*vimDoc) TripleEmphasis(out *bytes.Buffer, text []byte) {
 
 func (*vimDoc) StrikeThrough(out *bytes.Buffer, text []byte) {
 	// unimplemented
-	log.Println("StrikeThrough is a stub")
+	log.Println("warning: StrikeThrough is a stub")
 }
 
 func (*vimDoc) FootnoteRef(out *bytes.Buffer, ref []byte, id int) {
 	// unimplemented
-	log.Println("FootnoteRef is a stub")
+	log.Println("warning: FootnoteRef is a stub")
 }
 
 // Low-level callbacks
