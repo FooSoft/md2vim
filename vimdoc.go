@@ -26,27 +26,30 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 
 	"github.com/russross/blackfriday"
 )
 
 const (
-	LIST_STYLE_ORDERED = iota + 1
-	LIST_STYLE_UNORDERED
+	DEFAULT_NUM_COLUMNS = 80
 )
 
-type listItem struct {
-	style, index int
+type list struct {
+	index int
 }
 
 type vimDoc struct {
-	lists         []*listItem
-	cols, tabsize int
+	lists []*list
 }
 
-func (v *vimDoc) pushl(style int) {
-	v.lists = append(v.lists, &listItem{style, 1})
+func VimDocRenderer() *vimDoc {
+	return &vimDoc{}
+}
+
+func (v *vimDoc) pushl() {
+	v.lists = append(v.lists, &list{1})
 }
 
 func (v *vimDoc) popl() {
@@ -57,7 +60,7 @@ func (v *vimDoc) popl() {
 	v.lists = v.lists[:len(v.lists)-1]
 }
 
-func (v *vimDoc) getl() *listItem {
+func (v *vimDoc) getl() *list {
 	if len(v.lists) == 0 {
 		log.Fatal("invalid list operation")
 	}
@@ -65,15 +68,13 @@ func (v *vimDoc) getl() *listItem {
 	return v.lists[len(v.lists)-1]
 }
 
-func VimDocRenderer() blackfriday.Renderer {
-	return &vimDoc{
-		cols:    80,
-		tabsize: 4,
-	}
+func (v *vimDoc) fixup(input []byte) []byte {
+	r := regexp.MustCompile(`(?m)^\s*([<>])$`)
+	return r.ReplaceAll(input, []byte("$1"))
 }
 
 func (*vimDoc) hrule(out *bytes.Buffer, repeat string) {
-	out.WriteString(strings.Repeat(repeat, 80))
+	out.WriteString(strings.Repeat(repeat, DEFAULT_NUM_COLUMNS))
 	out.WriteString("\n")
 }
 
@@ -81,7 +82,7 @@ func (v *vimDoc) format(out *bytes.Buffer, text string, trim int) {
 	lines := strings.Split(text, "\n")
 
 	for index, line := range lines {
-		width := v.tabsize
+		width := blackfriday.TAB_SIZE_DEFAULT
 		if index == 0 {
 			width -= trim
 		}
@@ -138,12 +139,7 @@ func (v *vimDoc) HRule(out *bytes.Buffer) {
 }
 
 func (v *vimDoc) List(out *bytes.Buffer, text func() bool, flags int) {
-	style := LIST_STYLE_UNORDERED
-	if flags&blackfriday.LIST_TYPE_ORDERED == blackfriday.LIST_TYPE_ORDERED {
-		style = LIST_STYLE_ORDERED
-	}
-
-	v.pushl(style)
+	v.pushl()
 	text()
 	v.popl()
 }
@@ -152,7 +148,7 @@ func (v *vimDoc) ListItem(out *bytes.Buffer, text []byte, flags int) {
 	marker := out.Len()
 
 	list := v.getl()
-	if list.style == LIST_STYLE_ORDERED {
+	if flags&blackfriday.LIST_TYPE_ORDERED == blackfriday.LIST_TYPE_ORDERED {
 		out.WriteString(fmt.Sprintf("%d. ", list.index))
 		list.index++
 	} else {
@@ -216,9 +212,13 @@ func (*vimDoc) AutoLink(out *bytes.Buffer, link []byte, kind int) {
 }
 
 func (*vimDoc) CodeSpan(out *bytes.Buffer, text []byte) {
-	out.WriteString("`")
-	out.Write(text)
-	out.WriteString("`")
+	r := regexp.MustCompile(`\s`)
+
+	if !r.Match(text) {
+		out.WriteString("`")
+		out.Write(text)
+		out.WriteString("`")
+	}
 }
 
 func (*vimDoc) DoubleEmphasis(out *bytes.Buffer, text []byte) {
@@ -243,7 +243,8 @@ func (*vimDoc) Link(out *bytes.Buffer, link []byte, title []byte, content []byte
 }
 
 func (*vimDoc) RawHtmlTag(out *bytes.Buffer, tag []byte) {
-	out.Write(tag)
+	// unimplemented
+	log.Println("StrikeThrough is a stub")
 }
 
 func (*vimDoc) TripleEmphasis(out *bytes.Buffer, text []byte) {

@@ -38,6 +38,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "Parameters:\n")
 	flag.PrintDefaults()
 }
+
 func main() {
 	flag.Usage = usage
 	flag.Parse()
@@ -68,6 +69,7 @@ func main() {
 	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
 
 	output := blackfriday.Markdown(input, renderer, extensions)
+	output = renderer.fixup(output)
 
 	var file *os.File
 	switch len(args) {
