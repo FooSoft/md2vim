@@ -122,7 +122,7 @@ func (v *vimDoc) buildTag(header []byte) []byte {
 		header = bytes.ToLower(header)
 		header = bytes.Replace(header, []byte{' '}, []byte{'_'}, -1)
 	} else {
-		header = bytes.ToTitle(header)
+		header = bytes.Title(header)
 		header = bytes.Replace(header, []byte{' '}, []byte{}, -1)
 	}
 
@@ -390,6 +390,8 @@ func (v *vimDoc) DocumentHeader(out *bytes.Buffer) {
 		out.WriteString(v.filename)
 		out.WriteString("\n")
 	}
+
+	out.WriteString("\n")
 }
 
 func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
