@@ -20,10 +20,25 @@ $ go get github.com/FooSoft/md2vim
 
 Otherwise, you can use the pre-built binaries for the platforms below:
 
-*   [Linux](http://foosoft.net/projects/md2vim/dl/md2vim-linux64.tar.gz)
-*   [OSX](http://foosoft.net/projects/md2vim/dl/md2vim-darwin64.tar.gz)
-*   [Windows](http://foosoft.net/projects/md2vim/dl/md2vim-win32.zip)
-
+ * [md2vim_darwin_386.zip](http://dl.foosoft.net/md2vim/md2vim_darwin_386.zip)
+ * [md2vim_darwin_amd64.zip](http://dl.foosoft.net/md2vim/md2vim_darwin_amd64.zip)
+ * [md2vim_freebsd_386.zip](http://dl.foosoft.net/md2vim/md2vim_freebsd_386.zip)
+ * [md2vim_freebsd_amd64.zip](http://dl.foosoft.net/md2vim/md2vim_freebsd_amd64.zip)
+ * [md2vim_freebsd_arm.zip](http://dl.foosoft.net/md2vim/md2vim_freebsd_arm.zip)
+ * [md2vim_linux_386.tar.gz](http://dl.foosoft.net/md2vim/md2vim_linux_386.tar.gz)
+ * [md2vim_linux_amd64.tar.gz](http://dl.foosoft.net/md2vim/md2vim_linux_amd64.tar.gz)
+ * [md2vim_linux_arm.tar.gz](http://dl.foosoft.net/md2vim/md2vim_linux_arm.tar.gz)
+ * [md2vim_netbsd_386.zip](http://dl.foosoft.net/md2vim/md2vim_netbsd_386.zip)
+ * [md2vim_netbsd_amd64.zip](http://dl.foosoft.net/md2vim/md2vim_netbsd_amd64.zip)
+ * [md2vim_netbsd_arm.zip](http://dl.foosoft.net/md2vim/md2vim_netbsd_arm.zip)
+ * [md2vim_openbsd_386.zip](http://dl.foosoft.net/md2vim/md2vim_openbsd_386.zip)
+ * [md2vim_openbsd_amd64.zip](http://dl.foosoft.net/md2vim/md2vim_openbsd_amd64.zip)
+ * [md2vim_plan9_386.zip](http://dl.foosoft.net/md2vim/md2vim_plan9_386.zip)
+ * [md2vim_snapshot_amd64.deb](http://dl.foosoft.net/md2vim/md2vim_snapshot_amd64.deb)
+ * [md2vim_snapshot_armhf.deb](http://dl.foosoft.net/md2vim/md2vim_snapshot_armhf.deb)
+ * [md2vim_snapshot_i386.deb](http://dl.foosoft.net/md2vim/md2vim_snapshot_i386.deb)
+ * [md2vim_windows_386.zip](http://dl.foosoft.net/md2vim/md2vim_windows_386.zip)
+ * [md2vim_windows_amd64.zip](http://dl.foosoft.net/md2vim/md2vim_windows_amd64.zip)
 
 ## Example ##
 
@@ -31,10 +46,11 @@ Let's generate the documentation for [ArgWrap](/projects/argwrap/) by executing 
 multiple lines due to length considerations):
 
 ```
-$ md2vim -desc "Wrap and unwrap function arguments, lists, and dictionaries in Vim"
-         -cols=120
-         README.md
-         doc/argwrap.txt
+$ md2vim \
+    -desc "Wrap and unwrap function arguments, lists, and dictionaries in Vim" \
+    -cols=120 \
+    README.md \
+    doc/argwrap.txt
 ```
 
 And here is the animation of it happening in a terminal window; notice the pretty help file layout Vim.
