@@ -28,12 +28,13 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 
 	"github.com/russross/blackfriday"
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] input output\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] input output\n", path.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "http://foosoft.net/projects/md2vim/\n\n")
 	fmt.Fprintf(os.Stderr, "Parameters:\n")
 	flag.PrintDefaults()
