@@ -34,14 +34,14 @@ import (
 )
 
 const (
-	DEFAULT_NUM_COLUMNS = 80
-	DEFAULT_TAB_SIZE    = 4
+	defNumCols = 80
+	defTabSize = 4
 )
 
 const (
-	FLAG_NO_TOC = 1 << iota
-	FLAG_NO_RULES
-	FLAG_PASCAL
+	flagNoToc = 1 << iota
+	flagNoRules
+	flagPascal
 )
 
 type list struct {
@@ -73,7 +73,7 @@ func VimDocRenderer(filename, desc string, cols, tabs, flags int) blackfriday.Re
 
 	if index := strings.LastIndex(filename, "."); index > -1 {
 		title = filename[:index]
-		if flags&FLAG_PASCAL == 0 {
+		if flags&flagPascal == 0 {
 			title = strings.ToLower(title)
 		}
 	}
@@ -93,18 +93,10 @@ func (v *vimDoc) pushl() {
 }
 
 func (v *vimDoc) popl() {
-	if len(v.lists) == 0 {
-		log.Fatal("error: invalid list operation")
-	}
-
 	v.lists = v.lists[:len(v.lists)-1]
 }
 
 func (v *vimDoc) getl() *list {
-	if len(v.lists) == 0 {
-		log.Fatal("error: invalid list operation")
-	}
-
 	return v.lists[len(v.lists)-1]
 }
 
@@ -118,7 +110,7 @@ func (v *vimDoc) fixupHeader(text []byte) []byte {
 }
 
 func (v *vimDoc) buildTag(text []byte) []byte {
-	if v.flags&FLAG_PASCAL == 0 {
+	if v.flags&flagPascal == 0 {
 		text = bytes.ToLower(text)
 		text = bytes.Replace(text, []byte{' '}, []byte{'_'}, -1)
 	} else {
@@ -195,7 +187,7 @@ func (v *vimDoc) BlockHtml(out *bytes.Buffer, text []byte) {
 func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id string) {
 	initPos := out.Len()
 
-	if v.flags&FLAG_NO_RULES == 0 {
+	if v.flags&flagNoRules == 0 {
 		switch level {
 		case 1:
 			v.writeRule(out, "=")
@@ -397,7 +389,7 @@ func (v *vimDoc) DocumentHeader(out *bytes.Buffer) {
 func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
 	var temp bytes.Buffer
 
-	if v.tocPos > 0 && v.flags&FLAG_NO_TOC == 0 {
+	if v.tocPos > 0 && v.flags&flagNoToc == 0 {
 		temp.Write(out.Bytes()[:v.tocPos])
 		v.writeToc(&temp, v.rootHead, 0)
 		temp.WriteString("\n")

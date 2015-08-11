@@ -41,8 +41,8 @@ func usage() {
 }
 
 func main() {
-	cols := flag.Int("cols", DEFAULT_NUM_COLUMNS, "number of columns to use for layout")
-	tabs := flag.Int("tabs", DEFAULT_TAB_SIZE, "tab width specified in number of spaces")
+	cols := flag.Int("cols", defNumCols, "number of columns to use for layout")
+	tabs := flag.Int("tabs", defTabSize, "tab width specified in number of spaces")
 	notoc := flag.Bool("notoc", false, "do not generate table of contents for headings")
 	norules := flag.Bool("norules", false, "do not generate horizontal rules above headings")
 	pascal := flag.Bool("pascal", false, "use PascalCase for abbreviating tags")
@@ -58,18 +58,18 @@ func main() {
 
 	input, err := ioutil.ReadFile(args[0])
 	if err != nil {
-		log.Fatalf("error: unable to read from file %s", args[0])
+		log.Fatalf("unable to read from file: %s", args[0])
 	}
 
 	flags := 0
 	if *notoc {
-		flags |= FLAG_NO_TOC
+		flags |= flagNoToc
 	}
 	if *norules {
-		flags |= FLAG_NO_RULES
+		flags |= flagNoRules
 	}
 	if *pascal {
-		flags |= FLAG_PASCAL
+		flags |= flagPascal
 	}
 
 	renderer := VimDocRenderer(args[1], *desc, *cols, *tabs, flags)
@@ -78,11 +78,11 @@ func main() {
 
 	file, err := os.Create(args[1])
 	if err != nil {
-		log.Fatalf("error: unable to write to file %s", args[1])
+		log.Fatalf("unable to write to file: %s", args[1])
 	}
 	defer file.Close()
 
 	if _, err := file.Write(output); err != nil {
-		log.Fatal("error: unable to write output")
+		log.Fatal("unable to write output")
 	}
 }
