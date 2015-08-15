@@ -121,14 +121,14 @@ func (v *vimDoc) buildTag(text []byte) []byte {
 	return []byte(fmt.Sprintf("%s-%s", v.title, text))
 }
 
-func (v *vimDoc) writeStraddle(out *bytes.Buffer, left, right []byte, trim int) {
+func (v *vimDoc) writeStraddle(out *bytes.Buffer, left, right []byte, repeat string, trim int) {
 	padding := v.cols - (len(left) + len(right)) + trim
 	if padding <= 0 {
 		padding = 1
 	}
 
 	out.Write(left)
-	out.WriteString(strings.Repeat(" ", padding))
+	out.WriteString(strings.Repeat(repeat, padding))
 	out.Write(right)
 	out.WriteString("\n")
 }
@@ -141,7 +141,7 @@ func (v *vimDoc) writeRule(out *bytes.Buffer, repeat string) {
 func (v *vimDoc) writeToc(out *bytes.Buffer, head *heading, depth int) {
 	title := fmt.Sprintf("%s%s", strings.Repeat(" ", depth*v.tabs), head.text)
 	link := fmt.Sprintf("|%s|", v.buildTag(head.text))
-	v.writeStraddle(out, []byte(title), []byte(link), 2)
+	v.writeStraddle(out, []byte(title), []byte(link), ".", 2)
 
 	for _, child := range head.children {
 		v.writeToc(out, child, depth+1)
@@ -232,7 +232,7 @@ func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id strin
 
 	out.Truncate(headingPos)
 	tag := fmt.Sprintf("*%s*", v.buildTag(heading.text))
-	v.writeStraddle(out, v.fixupHeader(heading.text), []byte(tag), 2)
+	v.writeStraddle(out, v.fixupHeader(heading.text), []byte(tag), " ", 2)
 	out.WriteString("\n")
 }
 
@@ -377,7 +377,7 @@ func (v *vimDoc) NormalText(out *bytes.Buffer, text []byte) {
 // Header and footer
 func (v *vimDoc) DocumentHeader(out *bytes.Buffer) {
 	if len(v.desc) > 0 {
-		v.writeStraddle(out, []byte(v.filename), []byte(v.desc), 0)
+		v.writeStraddle(out, []byte(v.filename), []byte(v.desc), " ", 0)
 	} else {
 		out.WriteString(v.filename)
 		out.WriteString("\n")
