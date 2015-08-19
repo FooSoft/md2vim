@@ -49,9 +49,8 @@ type list struct {
 }
 
 type heading struct {
-	text     []byte
-	level    int
-	children []*heading
+	text  []byte
+	level int
 }
 
 type vimDoc struct {
@@ -63,8 +62,7 @@ type vimDoc struct {
 	flags    int
 	tocPos   int
 	lists    []*list
-	rootHead *heading
-	lastHead *heading
+	headings []*heading
 }
 
 func VimDocRenderer(filename, desc string, cols, tabs, flags int) blackfriday.Renderer {
@@ -88,16 +86,12 @@ func VimDocRenderer(filename, desc string, cols, tabs, flags int) blackfriday.Re
 		tocPos:   -1}
 }
 
-func (v *vimDoc) fixupCode(input []byte) []byte {
+func (v *vimDoc) fixupCodeTags(input []byte) []byte {
 	r := regexp.MustCompile(`(?m)^\s*([<>])$`)
 	return r.ReplaceAll(input, []byte("$1"))
 }
 
-func (v *vimDoc) fixupHeader(text []byte) []byte {
-	return bytes.ToUpper(text)
-}
-
-func (v *vimDoc) buildTag(text []byte) []byte {
+func (v *vimDoc) buildHelpTag(text []byte) []byte {
 	if v.flags&flagPascal == 0 {
 		text = bytes.ToLower(text)
 		text = bytes.Replace(text, []byte{' '}, []byte{'_'}, -1)
@@ -109,7 +103,11 @@ func (v *vimDoc) buildTag(text []byte) []byte {
 	return []byte(fmt.Sprintf("%s-%s", v.title, text))
 }
 
-func (v *vimDoc) writeStraddle(out *bytes.Buffer, left, right []byte, repeat string, trim int) {
+func (v *vimDoc) buildHeadingPrefix(h *heading) []byte {
+	return nil
+}
+
+func (v *vimDoc) writeSplitText(out *bytes.Buffer, left, right []byte, repeat string, trim int) {
 	padding := v.cols - (len(left) + len(right)) + trim
 	if padding <= 0 {
 		padding = 1
@@ -126,17 +124,15 @@ func (v *vimDoc) writeRule(out *bytes.Buffer, repeat string) {
 	out.WriteString("\n")
 }
 
-func (v *vimDoc) writeToc(out *bytes.Buffer, head *heading, depth int) {
-	title := fmt.Sprintf("%s%s", strings.Repeat(" ", depth*v.tabs), head.text)
-	link := fmt.Sprintf("|%s|", v.buildTag(head.text))
-	v.writeStraddle(out, []byte(title), []byte(link), ".", 2)
-
-	for _, child := range head.children {
-		v.writeToc(out, child, depth+1)
+func (v *vimDoc) writeToc(out *bytes.Buffer) {
+	for _, h := range v.headings {
+		title := fmt.Sprintf("%s%s", strings.Repeat(" ", (h.level-1)*v.tabs), h.text)
+		link := fmt.Sprintf("|%s|", v.buildHelpTag(h.text))
+		v.writeSplitText(out, []byte(title), []byte(link), ".", 2)
 	}
 }
 
-func (v *vimDoc) format(out *bytes.Buffer, text string, trim int) {
+func (v *vimDoc) writeIndent(out *bytes.Buffer, text string, trim int) {
 	lines := strings.Split(text, "\n")
 
 	for index, line := range lines {
@@ -156,25 +152,24 @@ func (v *vimDoc) format(out *bytes.Buffer, text string, trim int) {
 // Block-level callbacks
 func (v *vimDoc) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	out.WriteString(">\n")
-	v.format(out, string(text), 0)
+	v.writeIndent(out, string(text), 0)
 	out.WriteString("<\n\n")
 }
 
 func (v *vimDoc) BlockQuote(out *bytes.Buffer, text []byte) {
 	out.WriteString(">\n")
-	v.format(out, string(text), 0)
+	v.writeIndent(out, string(text), 0)
 	out.WriteString("<\n\n")
 }
 
 func (v *vimDoc) BlockHtml(out *bytes.Buffer, text []byte) {
 	out.WriteString(">\n")
-	v.format(out, string(text), 0)
+	v.writeIndent(out, string(text), 0)
 	out.WriteString("<\n\n")
 }
 
 func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id string) {
 	initPos := out.Len()
-
 	if v.flags&flagNoRules == 0 {
 		switch level {
 		case 1:
@@ -185,42 +180,24 @@ func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id strin
 	}
 
 	headingPos := out.Len()
-
 	if !text() {
 		out.Truncate(initPos)
 		return
 	}
 
-	if v.tocPos == -1 && v.rootHead != nil {
+	if v.tocPos == -1 && len(v.headings) > 0 {
 		v.tocPos = initPos
 	}
 
-	var value []byte
-	value = append(value, out.Bytes()[headingPos:]...)
-	heading := &heading{value, level, nil}
+	var temp []byte
+	temp = append(temp, out.Bytes()[headingPos:]...)
 
-	if v.lastHead == nil {
-		if heading.level != 1 {
-			log.Println("top-level heading in document is not a level 1 heading")
-		}
-
-		v.rootHead = heading
-		v.lastHead = heading
-	} else {
-		if v.rootHead.level >= heading.level {
-			log.Println("found heading of higher or equal level to the root heading")
-		}
-
-		if heading.level <= v.lastHead.level {
-			v.lastHead = heading
-		} else {
-			v.lastHead.children = append(v.lastHead.children, heading)
-		}
-	}
+	h := &heading{temp, level}
+	v.headings = append(v.headings, h)
 
 	out.Truncate(headingPos)
-	tag := fmt.Sprintf("*%s*", v.buildTag(heading.text))
-	v.writeStraddle(out, v.fixupHeader(heading.text), []byte(tag), " ", 2)
+	tag := fmt.Sprintf("*%s*", v.buildHelpTag(h.text))
+	v.writeSplitText(out, bytes.ToUpper(h.text), []byte(tag), " ", 2)
 	out.WriteString("\n")
 }
 
@@ -245,7 +222,7 @@ func (v *vimDoc) ListItem(out *bytes.Buffer, text []byte, flags int) {
 		out.WriteString("* ")
 	}
 
-	v.format(out, string(text), out.Len()-marker)
+	v.writeIndent(out, string(text), out.Len()-marker)
 
 	if flags&blackfriday.LIST_ITEM_END_OF_LIST != 0 {
 		out.WriteString("\n")
@@ -365,7 +342,7 @@ func (v *vimDoc) NormalText(out *bytes.Buffer, text []byte) {
 // Header and footer
 func (v *vimDoc) DocumentHeader(out *bytes.Buffer) {
 	if len(v.desc) > 0 {
-		v.writeStraddle(out, []byte(v.filename), []byte(v.desc), " ", 0)
+		v.writeSplitText(out, []byte(v.filename), []byte(v.desc), " ", 0)
 	} else {
 		out.WriteString(v.filename)
 		out.WriteString("\n")
@@ -379,7 +356,7 @@ func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
 
 	if v.tocPos > 0 && v.flags&flagNoToc == 0 {
 		temp.Write(out.Bytes()[:v.tocPos])
-		v.writeToc(&temp, v.rootHead, 0)
+		v.writeToc(&temp)
 		temp.WriteString("\n")
 		temp.Write(out.Bytes()[v.tocPos:])
 	} else {
@@ -387,7 +364,7 @@ func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
 	}
 
 	out.Reset()
-	out.Write(v.fixupCode(temp.Bytes()))
+	out.Write(v.fixupCodeTags(temp.Bytes()))
 }
 
 func (v *vimDoc) GetFlags() int {
