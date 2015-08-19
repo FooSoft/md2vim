@@ -88,18 +88,6 @@ func VimDocRenderer(filename, desc string, cols, tabs, flags int) blackfriday.Re
 		tocPos:   -1}
 }
 
-func (v *vimDoc) pushl() {
-	v.lists = append(v.lists, &list{1})
-}
-
-func (v *vimDoc) popl() {
-	v.lists = v.lists[:len(v.lists)-1]
-}
-
-func (v *vimDoc) getl() *list {
-	return v.lists[len(v.lists)-1]
-}
-
 func (v *vimDoc) fixupCode(input []byte) []byte {
 	r := regexp.MustCompile(`(?m)^\s*([<>])$`)
 	return r.ReplaceAll(input, []byte("$1"))
@@ -241,15 +229,15 @@ func (v *vimDoc) HRule(out *bytes.Buffer) {
 }
 
 func (v *vimDoc) List(out *bytes.Buffer, text func() bool, flags int) {
-	v.pushl()
+	v.lists = append(v.lists, &list{1})
 	text()
-	v.popl()
+	v.lists = v.lists[:len(v.lists)-1]
 }
 
 func (v *vimDoc) ListItem(out *bytes.Buffer, text []byte, flags int) {
 	marker := out.Len()
 
-	list := v.getl()
+	list := v.lists[len(v.lists)-1]
 	if flags&blackfriday.LIST_TYPE_ORDERED == blackfriday.LIST_TYPE_ORDERED {
 		out.WriteString(fmt.Sprintf("%d. ", list.index))
 		list.index++
