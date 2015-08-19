@@ -201,14 +201,14 @@ func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id strin
 
 	if v.lastHead == nil {
 		if heading.level != 1 {
-			log.Println("warning: top-level heading in document is not a level 1 heading")
+			log.Println("top-level heading in document is not a level 1 heading")
 		}
 
 		v.rootHead = heading
 		v.lastHead = heading
 	} else {
 		if v.rootHead.level >= heading.level {
-			log.Println("warning: found heading of higher or equal level to the root heading")
+			log.Println("found heading of higher or equal level to the root heading")
 		}
 
 		if heading.level <= v.lastHead.level {
@@ -265,37 +265,37 @@ func (*vimDoc) Paragraph(out *bytes.Buffer, text func() bool) {
 
 func (*vimDoc) Table(out *bytes.Buffer, heading []byte, body []byte, columnData []int) {
 	// unimplemented
-	log.Println("warning: Table is a stub")
+	log.Println("Table is a stub")
 }
 
 func (*vimDoc) TableRow(out *bytes.Buffer, text []byte) {
 	// unimplemented
-	log.Println("warning: TableRow is a stub")
+	log.Println("TableRow is a stub")
 }
 
 func (*vimDoc) TableHeaderCell(out *bytes.Buffer, text []byte, flags int) {
 	// unimplemented
-	log.Println("warning: TableHeaderCell is a stub")
+	log.Println("TableHeaderCell is a stub")
 }
 
 func (*vimDoc) TableCell(out *bytes.Buffer, text []byte, flags int) {
 	// unimplemented
-	log.Println("warning: TableCell is a stub")
+	log.Println("TableCell is a stub")
 }
 
 func (*vimDoc) Footnotes(out *bytes.Buffer, text func() bool) {
 	// unimplemented
-	log.Println("warning: Footnotes is a stub")
+	log.Println("Footnotes is a stub")
 }
 
 func (*vimDoc) FootnoteItem(out *bytes.Buffer, name, text []byte, flags int) {
 	// unimplemented
-	log.Println("warning: FootnoteItem is a stub")
+	log.Println("FootnoteItem is a stub")
 }
 
 func (*vimDoc) TitleBlock(out *bytes.Buffer, text []byte) {
 	// unimplemented
-	log.Println("warning: TitleBlock is a stub")
+	log.Println("TitleBlock is a stub")
 }
 
 // Span-level callbacks
@@ -336,7 +336,7 @@ func (*vimDoc) Link(out *bytes.Buffer, link []byte, title []byte, content []byte
 
 func (*vimDoc) RawHtmlTag(out *bytes.Buffer, tag []byte) {
 	// unimplemented
-	log.Println("warning: StrikeThrough is a stub")
+	log.Println("StrikeThrough is a stub")
 }
 
 func (*vimDoc) TripleEmphasis(out *bytes.Buffer, text []byte) {
@@ -345,12 +345,12 @@ func (*vimDoc) TripleEmphasis(out *bytes.Buffer, text []byte) {
 
 func (*vimDoc) StrikeThrough(out *bytes.Buffer, text []byte) {
 	// unimplemented
-	log.Println("warning: StrikeThrough is a stub")
+	log.Println("StrikeThrough is a stub")
 }
 
 func (*vimDoc) FootnoteRef(out *bytes.Buffer, ref []byte, id int) {
 	// unimplemented
-	log.Println("warning: FootnoteRef is a stub")
+	log.Println("FootnoteRef is a stub")
 }
 
 // Low-level callbacks
