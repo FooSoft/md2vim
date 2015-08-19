@@ -106,15 +106,17 @@ func (v *vimDoc) buildHelpTag(text []byte) []byte {
 
 func (v *vimDoc) buildChapters(h *heading) []byte {
 	index := -1
-	for i, curr := range v.headings {
-		if curr == h {
-			index = i
-			break
+	{
+		for i, curr := range v.headings {
+			if curr == h {
+				index = i
+				break
+			}
 		}
-	}
 
-	if index < 0 {
-		log.Fatal("heading not found")
+		if index < 0 {
+			log.Fatal("heading not found")
+		}
 	}
 
 	var chapters []int
