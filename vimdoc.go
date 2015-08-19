@@ -284,37 +284,37 @@ func (*vimDoc) Paragraph(out *bytes.Buffer, text func() bool) {
 
 func (*vimDoc) Table(out *bytes.Buffer, heading []byte, body []byte, columnData []int) {
 	// unimplemented
-	log.Println("Table is a stub")
+	log.Println("Table is unimplemented")
 }
 
 func (*vimDoc) TableRow(out *bytes.Buffer, text []byte) {
 	// unimplemented
-	log.Println("TableRow is a stub")
+	log.Println("TableRow is unimplemented")
 }
 
 func (*vimDoc) TableHeaderCell(out *bytes.Buffer, text []byte, flags int) {
 	// unimplemented
-	log.Println("TableHeaderCell is a stub")
+	log.Println("TableHeaderCell is unimplemented")
 }
 
 func (*vimDoc) TableCell(out *bytes.Buffer, text []byte, flags int) {
 	// unimplemented
-	log.Println("TableCell is a stub")
+	log.Println("TableCell is unimplemented")
 }
 
 func (*vimDoc) Footnotes(out *bytes.Buffer, text func() bool) {
 	// unimplemented
-	log.Println("Footnotes is a stub")
+	log.Println("Footnotes is unimplemented")
 }
 
 func (*vimDoc) FootnoteItem(out *bytes.Buffer, name, text []byte, flags int) {
 	// unimplemented
-	log.Println("FootnoteItem is a stub")
+	log.Println("FootnoteItem is unimplemented")
 }
 
 func (*vimDoc) TitleBlock(out *bytes.Buffer, text []byte) {
 	// unimplemented
-	log.Println("TitleBlock is a stub")
+	log.Println("TitleBlock is unimplemented")
 }
 
 // Span-level callbacks
@@ -355,7 +355,7 @@ func (*vimDoc) Link(out *bytes.Buffer, link []byte, title []byte, content []byte
 
 func (*vimDoc) RawHtmlTag(out *bytes.Buffer, tag []byte) {
 	// unimplemented
-	log.Println("StrikeThrough is a stub")
+	log.Println("StrikeThrough is unimplemented")
 }
 
 func (*vimDoc) TripleEmphasis(out *bytes.Buffer, text []byte) {
@@ -364,12 +364,12 @@ func (*vimDoc) TripleEmphasis(out *bytes.Buffer, text []byte) {
 
 func (*vimDoc) StrikeThrough(out *bytes.Buffer, text []byte) {
 	// unimplemented
-	log.Println("StrikeThrough is a stub")
+	log.Println("StrikeThrough is unimplemented")
 }
 
 func (*vimDoc) FootnoteRef(out *bytes.Buffer, ref []byte, id int) {
 	// unimplemented
-	log.Println("FootnoteRef is a stub")
+	log.Println("FootnoteRef is unimplemented")
 }
 
 // Low-level callbacks
