@@ -396,7 +396,7 @@ func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
 		temp.Write(out.Bytes()[:v.tocPos])
 
 		v.writeRule(&temp, "=")
-		title := []byte("contents")
+		title := []byte("Contents")
 		tag := fmt.Sprintf("*%s*", v.buildHelpTag(title))
 		v.writeSplitText(&temp, bytes.ToUpper(title), []byte(tag), " ", 2)
 		temp.WriteString("\n")
