@@ -226,17 +226,13 @@ func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id strin
 		return
 	}
 
-	if v.tocPos == -1 && len(v.headings) > 0 {
-		v.tocPos = initPos
-	}
-
 	var temp []byte
 	temp = append(temp, out.Bytes()[headingPos:]...)
+	out.Truncate(headingPos)
 
 	h := &heading{temp, level}
 	v.headings = append(v.headings, h)
 
-	out.Truncate(headingPos)
 	tag := fmt.Sprintf("*%s*", v.buildHelpTag(h.text))
 	title := fmt.Sprintf("%s %s", v.buildChapters(h), bytes.ToUpper(h.text))
 	v.writeSplitText(out, []byte(title), []byte(tag), " ", 2)
@@ -391,6 +387,7 @@ func (v *vimDoc) DocumentHeader(out *bytes.Buffer) {
 	}
 
 	out.WriteString("\n")
+	v.tocPos = out.Len()
 }
 
 func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
@@ -398,8 +395,13 @@ func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
 
 	if v.tocPos > 0 && v.flags&flagNoToc == 0 {
 		temp.Write(out.Bytes()[:v.tocPos])
+
+		v.writeRule(&temp, "=")
+		temp.WriteString("TABLE OF CONTENTS\n")
+		temp.WriteString("\n")
 		v.writeToc(&temp)
 		temp.WriteString("\n")
+
 		temp.Write(out.Bytes()[v.tocPos:])
 	} else {
 		temp.ReadFrom(out)
