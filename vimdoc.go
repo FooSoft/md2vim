@@ -234,8 +234,7 @@ func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id strin
 	v.headings = append(v.headings, h)
 
 	tag := fmt.Sprintf("*%s*", v.buildHelpTag(h.text))
-	title := fmt.Sprintf("%s", bytes.ToUpper(h.text))
-	v.writeSplitText(out, []byte(title), []byte(tag), " ", 2)
+	v.writeSplitText(out, bytes.ToUpper(h.text), []byte(tag), " ", 2)
 	out.WriteString("\n")
 }
 
@@ -397,7 +396,9 @@ func (v *vimDoc) DocumentFooter(out *bytes.Buffer) {
 		temp.Write(out.Bytes()[:v.tocPos])
 
 		v.writeRule(&temp, "=")
-		temp.WriteString("CONTENTS\n")
+		title := []byte("contents")
+		tag := fmt.Sprintf("*%s*", v.buildHelpTag(title))
+		v.writeSplitText(&temp, bytes.ToUpper(title), []byte(tag), " ", 2)
 		temp.WriteString("\n")
 		v.writeToc(&temp)
 		temp.WriteString("\n")
