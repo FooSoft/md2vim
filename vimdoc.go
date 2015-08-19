@@ -28,6 +28,7 @@ import (
 	"log"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/russross/blackfriday"
@@ -103,8 +104,46 @@ func (v *vimDoc) buildHelpTag(text []byte) []byte {
 	return []byte(fmt.Sprintf("%s-%s", v.title, text))
 }
 
-func (v *vimDoc) buildHeadingPrefix(h *heading) []byte {
-	return nil
+func (v *vimDoc) buildChapters(h *heading) []byte {
+	index := -1
+	for i, curr := range v.headings {
+		if curr == h {
+			index = i
+			break
+		}
+	}
+
+	if index < 0 {
+		log.Fatal("heading not found")
+	}
+
+	var chapters []int
+	{
+		level := h.level
+		siblings := 1
+
+		for i := index - 1; i >= 0; i-- {
+			curr := v.headings[i]
+
+			if curr.level == level {
+				siblings++
+			} else if curr.level < level {
+				chapters = append(chapters, siblings)
+				level = curr.level
+				siblings = 1
+			}
+		}
+
+		chapters = append(chapters, siblings)
+	}
+
+	var out bytes.Buffer
+	for i := len(chapters) - 1; i >= 0; i-- {
+		out.WriteString(strconv.Itoa(chapters[i]))
+		out.WriteString(".")
+	}
+
+	return out.Bytes()
 }
 
 func (v *vimDoc) writeSplitText(out *bytes.Buffer, left, right []byte, repeat string, trim int) {
@@ -126,7 +165,7 @@ func (v *vimDoc) writeRule(out *bytes.Buffer, repeat string) {
 
 func (v *vimDoc) writeToc(out *bytes.Buffer) {
 	for _, h := range v.headings {
-		title := fmt.Sprintf("%s%s", strings.Repeat(" ", (h.level-1)*v.tabs), h.text)
+		title := fmt.Sprintf("%s%s %s", strings.Repeat(" ", (h.level-1)*v.tabs), v.buildChapters(h), h.text)
 		link := fmt.Sprintf("|%s|", v.buildHelpTag(h.text))
 		v.writeSplitText(out, []byte(title), []byte(link), ".", 2)
 	}
@@ -197,7 +236,8 @@ func (v *vimDoc) Header(out *bytes.Buffer, text func() bool, level int, id strin
 
 	out.Truncate(headingPos)
 	tag := fmt.Sprintf("*%s*", v.buildHelpTag(h.text))
-	v.writeSplitText(out, bytes.ToUpper(h.text), []byte(tag), " ", 2)
+	title := fmt.Sprintf("%s %s", v.buildChapters(h), bytes.ToUpper(h.text))
+	v.writeSplitText(out, []byte(title), []byte(tag), " ", 2)
 	out.WriteString("\n")
 }
 
