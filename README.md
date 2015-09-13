@@ -43,7 +43,7 @@ wish to examine the [raw markdown input](https://raw.githubusercontent.com/FooSo
 [raw vimdoc output](https://raw.githubusercontent.com/FooSoft/vim-argwrap/master/doc/argwrap.txt) used in this example
 to get a better idea of how the markdown structure is transformed to vimdoc.
 
-![](//foosoft.net/projects/md2vim/img/demo.gif)
+![](http://foosoft.net/projects/md2vim/img/demo.gif)
 
 ## Usage ##
 
