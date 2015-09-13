@@ -20,8 +20,6 @@ $ go get github.com/FooSoft/md2vim
 
 Otherwise, you can use the pre-built binaries for the platforms below:
 
- * [md2vim_darwin_386.zip](http://dl.foosoft.net/md2vim/md2vim_darwin_386.zip)
- * [md2vim_darwin_amd64.zip](http://dl.foosoft.net/md2vim/md2vim_darwin_amd64.zip)
  * [md2vim_linux_386.tar.gz](http://dl.foosoft.net/md2vim/md2vim_linux_386.tar.gz)
  * [md2vim_linux_amd64.tar.gz](http://dl.foosoft.net/md2vim/md2vim_linux_amd64.tar.gz)
  * [md2vim_windows_386.zip](http://dl.foosoft.net/md2vim/md2vim_windows_386.zip)
@@ -45,7 +43,7 @@ wish to examine the [raw markdown input](https://raw.githubusercontent.com/FooSo
 [raw vimdoc output](https://raw.githubusercontent.com/FooSoft/vim-argwrap/master/doc/argwrap.txt) used in this example
 to get a better idea of how the markdown structure is transformed to vimdoc.
 
-![](http://foosoft.net/projects/md2vim/img/demo.gif)
+![](//foosoft.net/projects/md2vim/img/demo.gif)
 
 ## Usage ##
 
