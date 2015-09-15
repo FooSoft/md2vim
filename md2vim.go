@@ -53,7 +53,7 @@ func main() {
 	args := flag.Args()
 	if len(args) < 2 {
 		flag.Usage()
-		os.Exit(-1)
+		os.Exit(2)
 	}
 
 	input, err := ioutil.ReadFile(args[0])
