@@ -85,3 +85,7 @@ a more detailed description of what the parameters do.
 
 [![Markdown source file](img/markdown-thumb.png)](img/markdown.png)
 [![VimDoc destination file](img/vimdoc-thumb.png)](img/vimdoc.png)
+
+## License ##
+
+MIT
