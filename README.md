@@ -19,15 +19,18 @@ $ go get github.com/FooSoft/md2vim
 
 Otherwise, you can use the pre-built binaries for the platforms below:
 
- * [md2vim_linux_386.tar.gz](http://dl.foosoft.net/md2vim/md2vim_linux_386.tar.gz)
- * [md2vim_linux_amd64.tar.gz](http://dl.foosoft.net/md2vim/md2vim_linux_amd64.tar.gz)
- * [md2vim_windows_386.zip](http://dl.foosoft.net/md2vim/md2vim_windows_386.zip)
- * [md2vim_windows_amd64.zip](http://dl.foosoft.net/md2vim/md2vim_windows_amd64.zip)
+*   [md2vim_darwin_386.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_darwin_386.tar.gz)
+*   [md2vim_darwin_amd64.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_darwin_amd64.tar.gz)
+*   [md2vim_linux_386.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_linux_386.tar.gz)
+*   [md2vim_linux_amd64.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_linux_amd64.tar.gz)
+*   [md2vim_linux_arm.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_linux_arm.tar.gz)
+*   [md2vim_windows_386.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_windows_386.tar.gz)
+*   [md2vim_windows_amd64.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_windows_amd64.tar.gz)
 
 ## Usage ##
 
-Executing Md2Vim with the -help command line argument will trigger online help to be displayed. The list below provides
-a more detailed description of what the parameters do.
+Executing Md2Vim with the `-help` command line argument will trigger online help to be displayed. The list below
+provides a more detailed description of what the parameters do.
 
 *   **cols**
 
