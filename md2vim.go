@@ -35,7 +35,7 @@ import (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] input output\n", path.Base(os.Args[0]))
-	fmt.Fprintf(os.Stderr, "http://foosoft.net/projects/md2vim/\n\n")
+	fmt.Fprintf(os.Stderr, "https://foosoft.net/projects/md2vim/\n\n")
 	fmt.Fprintf(os.Stderr, "Parameters:\n")
 	flag.PrintDefaults()
 }
