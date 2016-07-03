@@ -3,7 +3,7 @@
 Writing technical documentation for [Vim](http://www.vim.org/) extensions is not very exciting; having to manually
 convert what you've just written in [Markdown](https://daringfireball.net/projects/markdown/) to the
 [vimdoc](http://vimdoc.sourceforge.net/htmldoc/usr_toc.html) help format is even less fun. As I grew tired of doing this
-over and over for my [ArgWrap](/projects/argwrap/) extension, I decided to formally solve this problem for myself and
+over and over for my [ArgWrap](https://foosoft.net/projects/argwrap/) extension, I decided to formally solve this problem for myself and
 others, creating the Md2Vim converter tool.
 
 Md2Vim is implemented in Golang as a custom renderer for the [blackfriday](https://github.com/russross/blackfriday)
@@ -19,13 +19,13 @@ $ go get github.com/FooSoft/md2vim
 
 Otherwise, you can use the pre-built binaries for the platforms below:
 
-*   [md2vim_darwin_386.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_darwin_386.tar.gz)
-*   [md2vim_darwin_amd64.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_darwin_amd64.tar.gz)
-*   [md2vim_linux_386.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_linux_386.tar.gz)
-*   [md2vim_linux_amd64.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_linux_amd64.tar.gz)
-*   [md2vim_linux_arm.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_linux_arm.tar.gz)
-*   [md2vim_windows_386.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_windows_386.tar.gz)
-*   [md2vim_windows_amd64.tar.gz](//foosoft.net/projects/md2vim/dl/md2vim_windows_amd64.tar.gz)
+*   [md2vim_darwin_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_darwin_386.tar.gz)
+*   [md2vim_darwin_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_darwin_amd64.tar.gz)
+*   [md2vim_linux_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_386.tar.gz)
+*   [md2vim_linux_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_amd64.tar.gz)
+*   [md2vim_linux_arm.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_arm.tar.gz)
+*   [md2vim_windows_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_windows_386.tar.gz)
+*   [md2vim_windows_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_windows_amd64.tar.gz)
 
 ## Usage ##
 
@@ -86,8 +86,8 @@ provides a more detailed description of what the parameters do.
 
 ## Screenshots ##
 
-[![Markdown source file](img/markdown-thumb.png)](img/markdown.png)
-[![VimDoc destination file](img/vimdoc-thumb.png)](img/vimdoc.png)
+[![Markdown source file](https://foosoft.net/projects/md2vim/img/markdown-thumb.png)](https://foosoft.net/projects/md2vim/img/markdown.png)
+[![VimDoc destination file](https://foosoft.net/projects/md2vim/img/vimdoc-thumb.png)](https://foosoft.net/projects/md2vim/img/vimdoc.png)
 
 ## License ##
 
