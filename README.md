@@ -6,8 +6,8 @@ convert what you've just written in [Markdown](https://daringfireball.net/projec
 over and over for my [ArgWrap](https://foosoft.net/projects/vim-argwrap/) extension, I decided to formally solve this problem for myself
 and others, creating the Md2Vim converter tool.
 
-Md2Vim is implemented in Golang as a custom renderer for the [blackfriday](https://github.com/russross/blackfriday)
-Markdown processor. Maintainability, ease of use, and beautiful vimdoc output were primary considerations in its design.
+Md2Vim is implemented in Go as a custom renderer for the [blackfriday](https://github.com/russross/blackfriday) Markdown
+processor. Maintainability, ease of use, and beautiful vimdoc output were primary considerations in its design.
 
 ## Installation ##
 
