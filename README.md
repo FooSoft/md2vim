@@ -1,13 +1,11 @@
 # Md2Vim #
 
-Writing technical documentation for [Vim](http://www.vim.org/) extensions is not very exciting; having to manually
-convert what you've just written in [Markdown](https://daringfireball.net/projects/markdown/) to the
-[vimdoc](http://vimdoc.sourceforge.net/htmldoc/usr_toc.html) help format is even less fun. As I grew tired of doing this
-over and over for my [ArgWrap](https://foosoft.net/projects/vim-argwrap/) extension, I decided to formally solve this problem for myself
-and others, creating the Md2Vim converter tool.
-
-Md2Vim is implemented in Go as a custom renderer for the [blackfriday](https://github.com/russross/blackfriday) Markdown
-processor. Maintainability, ease of use, and beautiful vimdoc output were primary considerations in its design.
+Writing technical documentation for Vim extensions is not exciting; manually converting what you've just written in
+[Markdown](https://daringfireball.net/projects/markdown/) to
+[vimdoc](http://vimdoc.sourceforge.net/htmldoc/usr_toc.html) format is even less fun. I grew tired of having to do this
+repeatedly for my [Vim-ArgWrap](https://foosoft.net/projects/vim-argwrap/) extension and finally formally solved this problem with a
+purpose-built tool. Maintainability, ease of use, and beautiful vimdoc output were primary considerations in Md2Vim's
+design.
 
 ## Installation ##
 
