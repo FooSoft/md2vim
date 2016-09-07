@@ -1,4 +1,3 @@
-# Md2Vim #
 
 Writing technical documentation for Vim extensions is not exciting; manually converting what you've just written in
 [Markdown](https://daringfireball.net/projects/markdown/) to
