@@ -17,13 +17,13 @@ $ go get github.com/FooSoft/md2vim
 
 Otherwise, you can use the pre-built binaries for the platforms below:
 
-*   [md2vim_darwin_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_darwin_386.tar.gz)
-*   [md2vim_darwin_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_darwin_amd64.tar.gz)
-*   [md2vim_linux_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_386.tar.gz)
-*   [md2vim_linux_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_amd64.tar.gz)
-*   [md2vim_linux_arm.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_arm.tar.gz)
-*   [md2vim_windows_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_windows_386.tar.gz)
-*   [md2vim_windows_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_windows_amd64.tar.gz)
+*   [md2vim\_darwin\_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_darwin_386.tar.gz)
+*   [md2vim\_darwin\_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_darwin_amd64.tar.gz)
+*   [md2vim\_linux\_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_386.tar.gz)
+*   [md2vim\_linux\_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_amd64.tar.gz)
+*   [md2vim\_linux\_arm.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_arm.tar.gz)
+*   [md2vim\_windows\_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_windows_386.tar.gz)
+*   [md2vim\_windows\_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_windows_amd64.tar.gz)
 
 ## Usage ##
 
