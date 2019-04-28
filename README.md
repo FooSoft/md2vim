@@ -7,6 +7,9 @@ repeatedly for my [Vim-ArgWrap](https://foosoft.net/projects/vim-argwrap/) exten
 purpose-built tool. Maintainability, ease of use, and beautiful vimdoc output were primary considerations in Md2Vim's
 design.
 
+[![Markdown source file](https://foosoft.net/projects/md2vim/img/markdown-thumb.png)](https://foosoft.net/projects/md2vim/img/markdown.png)
+[![VimDoc target file](https://foosoft.net/projects/md2vim/img/vimdoc-thumb.png)](https://foosoft.net/projects/md2vim/img/vimdoc.png)
+
 ## Installation ##
 
 If you already have the Go environment and toolchain set up, you can get the latest version by running:
@@ -81,8 +84,3 @@ provides a more detailed description of what the parameters do.
 *   **tabs**
 
     If you don't like four space tabs for some reason you can change it to something else with this parameter.
-
-## Screenshots ##
-
-[![Markdown source file](https://foosoft.net/projects/md2vim/img/markdown-thumb.png)](https://foosoft.net/projects/md2vim/img/markdown.png)
-[![VimDoc destination file](https://foosoft.net/projects/md2vim/img/vimdoc-thumb.png)](https://foosoft.net/projects/md2vim/img/vimdoc.png)
