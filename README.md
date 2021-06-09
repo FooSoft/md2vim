@@ -1,16 +1,16 @@
-# Md2Vim #
+# Md2Vim
 
 Writing technical documentation for Vim extensions is not exciting; manually converting what you've just written in
 [Markdown](https://daringfireball.net/projects/markdown/) to
 [vimdoc](http://vimdoc.sourceforge.net/htmldoc/usr_toc.html) format is even less fun. I grew tired of having to do this
-repeatedly for my [Vim-ArgWrap](https://foosoft.net/projects/vim-argwrap/) extension and finally formally solved this problem with a
-purpose-built tool. Maintainability, ease of use, and beautiful vimdoc output were primary considerations in Md2Vim's
-design.
+repeatedly for my [Vim-ArgWrap](https://foosoft.net/projects/vim-argwrap/) extension and finally formally solved this
+problem with a purpose-built tool. Maintainability, ease of use, and beautiful vimdoc output were primary considerations
+in Md2Vim's design.
 
 [![Markdown source file](https://foosoft.net/projects/md2vim/img/markdown-thumb.png)](https://foosoft.net/projects/md2vim/img/markdown.png)
 [![VimDoc target file](https://foosoft.net/projects/md2vim/img/vimdoc-thumb.png)](https://foosoft.net/projects/md2vim/img/vimdoc.png)
 
-## Installation ##
+## Installation
 
 If you already have the Go environment and toolchain set up, you can get the latest version by running:
 
@@ -28,7 +28,7 @@ Otherwise, you can use the pre-built binaries for the platforms below:
 *   [md2vim\_windows\_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_windows_386.tar.gz)
 *   [md2vim\_windows\_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_windows_amd64.tar.gz)
 
-## Usage ##
+## Usage
 
 Executing Md2Vim with the `-help` command line argument will trigger online help to be displayed. The list below
 provides a more detailed description of what the parameters do.
