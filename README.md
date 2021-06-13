@@ -50,6 +50,8 @@ provides a more detailed description of what the parameters do.
     The first field is the filename of the generated vimdoc help file; the second is the description can you provide
     with this parameter.
 
+    Multi line description can be written using `\n`.
+
 *   **norules**
 
     By default, we generate horizontal rules above level 1-2 headings, as shown below:

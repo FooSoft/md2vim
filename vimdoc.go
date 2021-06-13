@@ -373,7 +373,15 @@ func (v *vimDoc) NormalText(out *bytes.Buffer, text []byte) {
 // Header and footer
 func (v *vimDoc) DocumentHeader(out *bytes.Buffer) {
 	if len(v.desc) > 0 {
-		v.writeSplitText(out, []byte(v.filename), []byte(v.desc), " ", 0)
+		parts := strings.Split(v.desc, "\\n")
+		for i, part := range parts {
+			if i == 0 {
+				v.writeSplitText(out, []byte(v.filename), []byte(part), " ", 0)
+			} else {
+				out.WriteString(part)
+			}
+			out.WriteString("\n")
+		}
 	} else {
 		out.WriteString(v.filename)
 		out.WriteString("\n")
