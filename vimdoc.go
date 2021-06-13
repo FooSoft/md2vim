@@ -318,14 +318,9 @@ func (*vimDoc) AutoLink(out *bytes.Buffer, link []byte, kind int) {
 }
 
 func (*vimDoc) CodeSpan(out *bytes.Buffer, text []byte) {
-	r := regexp.MustCompile(`\s`)
-
-	// vim does not correctly highlight space-delimited words in code spans
-	if !r.Match(text) {
-		out.WriteString("`")
-		out.Write(text)
-		out.WriteString("`")
-	}
+	out.WriteString("`")
+	out.Write(text)
+	out.WriteString("`")
 }
 
 func (*vimDoc) DoubleEmphasis(out *bytes.Buffer, text []byte) {
