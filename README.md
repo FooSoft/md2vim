@@ -1,3 +1,12 @@
+<!-- +++
+Area = "projects"
+GitHub = "md2vim"
+Layout = "page"
+Tags = ["blackfriday", "golang", "markdown", "md2vim", "vim", "mit license"]
+Description = "Tool for automatically converting markdown to vimdoc format."
+Collection = "ProjectsComplete"
++++ -->
+
 # Md2Vim
 
 Writing technical documentation for Vim extensions is not exciting; manually converting what you've just written in
@@ -7,8 +16,8 @@ repeatedly for my [Vim-ArgWrap](https://foosoft.net/projects/vim-argwrap/) exten
 problem with a purpose-built tool. Maintainability, ease of use, and beautiful vimdoc output were primary considerations
 in Md2Vim's design.
 
-[![Markdown source file](https://foosoft.net/projects/md2vim/img/markdown-thumb.png)](https://foosoft.net/projects/md2vim/img/markdown.png)
-[![VimDoc target file](https://foosoft.net/projects/md2vim/img/vimdoc-thumb.png)](https://foosoft.net/projects/md2vim/img/vimdoc.png)
+[![Markdown source file](img/markdown-thumb.png)](img/markdown.png)
+[![VimDoc target file](img/vimdoc-thumb.png)](img/vimdoc.png)
 
 ## Installation
 
@@ -18,15 +27,7 @@ If you already have the Go environment and toolchain set up, you can get the lat
 $ go get github.com/FooSoft/md2vim
 ```
 
-Otherwise, you can use the pre-built binaries for the platforms below:
-
-*   [md2vim\_darwin\_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_darwin_386.tar.gz)
-*   [md2vim\_darwin\_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_darwin_amd64.tar.gz)
-*   [md2vim\_linux\_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_386.tar.gz)
-*   [md2vim\_linux\_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_amd64.tar.gz)
-*   [md2vim\_linux\_arm.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_linux_arm.tar.gz)
-*   [md2vim\_windows\_386.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_windows_386.tar.gz)
-*   [md2vim\_windows\_amd64.tar.gz](https://foosoft.net/projects/md2vim/dl/md2vim_windows_amd64.tar.gz)
+Otherwise, you can use the [pre-built binaries](https://github.com/FooSoft/md2vim/releases) from the project page.
 
 ## Usage
 
