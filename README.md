@@ -1,12 +1,3 @@
-<!-- +++
-Area = "projects"
-GitHub = "md2vim"
-Layout = "page"
-Tags = ["blackfriday", "golang", "markdown", "md2vim", "vim", "mit license"]
-Description = "Tool for automatically converting markdown to vimdoc format."
-Collection = "ProjectsComplete"
-+++ -->
-
 # Md2Vim
 
 Writing technical documentation for Vim extensions is not exciting; manually converting what you've just written in
